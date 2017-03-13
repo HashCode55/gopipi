@@ -38,9 +38,9 @@ func GetIPAddresses(packet gopacket.Packet) (string, string) {
 	} else if ipLayer := packet.Layer(layers.LayerTypeIPv6); ipLayer != nil {
 		ip, _ := ipLayer.(*layers.IPv4)
 		return ip.SrcIP.String(), ip.DstIP.String()
-	} else {
-		return "No IP layer found.", "No IP layer found."
 	}
+	// ?	
+	log.Fatal("No IPv4/IPv6 layer found in the packet.")
 }
 
 func GetPortAddresses(packet gopacket.Packet) (string, string) {
@@ -50,8 +50,7 @@ func GetPortAddresses(packet gopacket.Packet) (string, string) {
 	if tcpLayer := packet.Layer(layers.LayerTypeTCP); tcpLayer != nil {
 		tcp, _ := tcpLayer.(*layers.TCP)
 		return tcp.SrcPort.String(), tcp.DstPort.String()
-	} else {
-		return "No TCP layer found.", "No TCP layer found."
 	}
-
+	// ?
+	log.Fatal("No TCP layer found in the packet.")
 }

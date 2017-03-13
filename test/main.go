@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/HashCode55/gopipi"
+	///"github.com/HashCode55/gopipi"
+	"github.com/HashCode55/gopipi/packethelper"
 )
 
 func main() {
-	gopipi.PacketCapture("tcp", "en0")
+	packethelper.FindDevices()
 }
