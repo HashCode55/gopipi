@@ -39,7 +39,7 @@ func GetIPAddresses(packet gopacket.Packet) (string, string) {
 		ip, _ := ipLayer.(*layers.IPv4)
 		return ip.SrcIP.String(), ip.DstIP.String()
 	}
-	// ?	
+	// ?
 	log.Fatal("No IPv4/IPv6 layer found in the packet.")
 }
 

@@ -1,3 +1,6 @@
+/*
+THIS IS JUST A TEST FILE. No relation with the library.
+*/
 package main
 
 import (
