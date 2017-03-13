@@ -1,65 +1,67 @@
-package packethelper 
+package packethelper
 
 import (
-	"time"
-	"log"
 	"fmt"
-	"github.com/google/gopacket/pcap"
 	"github.com/google/gopacket"
+	"github.com/google/gopacket/pcap"
+	"log"
+	"time"
 )
-
 
 var (
-    device       string = "en0" // if on a linux, use eth0
-    snapshot_len int32  = 65535
-    promiscuous  bool   = false 
-    err          error
-    timeout      time.Duration = -1 * time.Second
-    handle       *pcap.Handle
+	device       string
+	snapshot_len int32 = 65535
+	promiscuous  bool  = false
+	err          error
+	timeout      time.Duration = -1 * time.Second
+	handle       *pcap.Handle
 )
 
-func FindDevices () {
+func FindDevices() {
 	/*
-	Helper function to get the devices list
+		Helper function to print the list of
+		network adaptors in your machine.
 	*/
 	devices, err := pcap.FindAllDevs()
 	if err != nil {
 		log.Fatal(err)
 	}
 	// Print device information
-    fmt.Println("Devices found:")
-    for _, device := range devices {
-        fmt.Println("\nName: ", device.Name)
-        fmt.Println("Description: ", device.Description)
-        fmt.Println("Devices addresses: ", device.Description)
-        for _, address := range device.Addresses {
-            fmt.Println("- IP address: ", address.IP)
-            fmt.Println("- Subnet mask: ", address.Netmask)
-        }
-    }
+	fmt.Println("Devices found:")
+	for _, device := range devices {
+		fmt.Println("\nName: ", device.Name)
+		fmt.Println("Description: ", device.Description)
+		fmt.Println("Devices addresses: ", device.Description)
+		for _, address := range device.Addresses {
+			fmt.Println("- IP address: ", address.IP)
+			fmt.Println("- Subnet mask: ", address.Netmask)
+		}
+	}
 }
 
-func GetPackets(filter string) (*gopacket.PacketSource, error) {
+func GetPackets(filter, _device string) (*gopacket.PacketSource, error) {
 	/*
-	Return the packet source for further inspection
+		Return the packet source for further inspection
 	*/
+	device = _device // set the device
+
 	handle, err := pcap.OpenLive(
-		"en0",
+		device,
 		snapshot_len,
-		promiscuous, 
-		timeout,		
+		promiscuous,
+		timeout,
 	)
 	if err != nil {
-		return nil, err 
+		return nil, err
 	}
 
-    // set the filter to monitor HTTP traffic for now 
-	handle.SetBPFFilter(filter) 
-	
+	// set the filter to monitor HTTP traffic for now
+	handle.SetBPFFilter(filter)
+
 	packetSource := gopacket.NewPacketSource(
-		handle, 
+		handle,
 		handle.LinkType(),
 	)
-	
+
 	return packetSource, nil
 }
