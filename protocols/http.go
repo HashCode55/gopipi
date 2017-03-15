@@ -8,8 +8,14 @@ package protocols
 import (
 	"github.com/google/gopacket"
 	"log"
+	"regexp"
 	"strings"
 )
+
+// TODO : Write tests asap
+
+// regex for handling http responses
+var resPattern = regexp.MustCompile("^(http|HTTP)/(0\\.9|1\\.0|1\\.1) [1-5][0-9][0-9]|post [\x09-\x0d -~]* http/[01]\\.[019]")
 
 // request types
 var requestTypes = [...]string{"GET ", "POST ", "OPTIONS ", "HEAD ", "PUT ",
@@ -29,7 +35,6 @@ func httpRequest(payload string) int {
 	return -1
 }
 
-// TODO Sequence number for packet health based on the discussion with my professor
 func DetectHTTP(packet gopacket.Packet, detectedProt chan Protocol) {
 	/*
 		detecting the http protocol
@@ -51,7 +56,7 @@ func DetectHTTP(packet gopacket.Packet, detectedProt chan Protocol) {
 			p.Name = "HTTP"
 			p.Description = "Packet contains HTTP " + requestTypes[request] + "request.\n"
 			detectedProt <- p
-		} else if strings.HasPrefix(payload, "HTTP/1.") {
+		} else if resPattern.MatchString(payload) {
 			p.Name = "HTTP"
 			p.Description = "Packet contains HTTP response."
 			detectedProt <- p
