@@ -5,13 +5,10 @@
 
 package gopipi
 
-// TODO change package name
-
 import (
-	"log"
-
 	"github.com/HashCode55/go-PIPI/packethelper"
 	"github.com/HashCode55/go-PIPI/protocols"
+	"log"
 )
 
 func prettyPrint(detectProt chan protocols.Protocol) {

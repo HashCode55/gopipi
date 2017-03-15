@@ -3,6 +3,7 @@ package protocols
 import (
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
+	"log"
 )
 
 type Protocol struct {
@@ -14,7 +15,7 @@ type Protocol struct {
 	Description string // Other protocol specific information
 }
 
-// ADD the implemented protocol her
+// ADD the implemented protocol here
 // this list cannot be exported
 var protocolsList = [...]func(gopacket.Packet, chan Protocol){
 	DetectHTTP,
@@ -41,6 +42,7 @@ func GetIPAddresses(packet gopacket.Packet) (string, string) {
 	}
 	// ?
 	log.Fatal("No IPv4/IPv6 layer found in the packet.")
+	return "", ""
 }
 
 func GetPortAddresses(packet gopacket.Packet) (string, string) {
@@ -53,4 +55,5 @@ func GetPortAddresses(packet gopacket.Packet) (string, string) {
 	}
 	// ?
 	log.Fatal("No TCP layer found in the packet.")
+	return "", ""
 }

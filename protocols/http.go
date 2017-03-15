@@ -6,12 +6,30 @@
 package protocols
 
 import (
+	"github.com/google/gopacket"
 	"log"
 	"strings"
-
-	"github.com/google/gopacket"
 )
 
+// request types
+var requestTypes = [...]string{"GET ", "POST ", "OPTIONS ", "HEAD ", "PUT ",
+	"DELETE ", "CONNECT ", "PROPFIND ", "REPORT "}
+
+func httpRequest(payload string) int {
+	/*
+		Checks if the HTTP payload contains a request or not.
+		Refer https://github.com/ntop/nDPI/blob/dev/src/lib/protocols/http.c#L470
+	*/
+	for index, rt := range requestTypes {
+		if strings.HasPrefix(payload, rt) {
+			return index
+		}
+	}
+	// not a request
+	return -1
+}
+
+// TODO Sequence number for packet health based on the discussion with my professor
 func DetectHTTP(packet gopacket.Packet, detectedProt chan Protocol) {
 	/*
 		detecting the http protocol
@@ -20,16 +38,22 @@ func DetectHTTP(packet gopacket.Packet, detectedProt chan Protocol) {
 
 	applicationLayer := packet.ApplicationLayer()
 	if applicationLayer != nil {
-		// Search for a string inside the payload
-		if strings.Contains(string(applicationLayer.Payload()), "HTTP") {
 
-			p.FromIP, p.ToIP = GetIPAddresses(packet)
-			p.FromPortNum, p.ToPortNum = GetPortAddresses(packet)
-			// put the name and description
+		p.FromIP, p.ToIP = GetIPAddresses(packet)
+		p.FromPortNum, p.ToPortNum = GetPortAddresses(packet)
+
+		payload := string(applicationLayer.Payload())
+
+		// check if its an HTTP request
+		request := httpRequest(payload)
+
+		if request != -1 {
 			p.Name = "HTTP"
-			p.Description = "No description provided."
-
-			// push the protocol into the channel
+			p.Description = "Packet contains HTTP " + requestTypes[request] + "request.\n"
+			detectedProt <- p
+		} else if strings.HasPrefix(payload, "HTTP/1.") {
+			p.Name = "HTTP"
+			p.Description = "Packet contains HTTP response."
 			detectedProt <- p
 		}
 	}
